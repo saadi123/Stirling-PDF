@@ -17,7 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "authorities")
+@Table(name = "authorities", schema = "stirling_pdf")
 @Getter
 @Setter
 public class Authority implements GrantedAuthority, Serializable {

@@ -6,12 +6,12 @@
       "Bash(./gradlew:*)",
       "Bash(grep:*)",
       "Bash(cat:*)",
+      "Bash(nc:*)",
+      "Bash(timeout:*)",
+      "Bash(cat:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
-      "Bash(rg:*)",
-      "Bash(strings:*)",
-      "Bash(pkill:*)",
-      "Bash(true)"
+      "Bash(strings:*)"
     ],
     "deny": []
   }
