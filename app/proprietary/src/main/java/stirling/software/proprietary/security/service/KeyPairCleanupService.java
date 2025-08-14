@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import stirling.software.common.configuration.InstallationPathConfig;
 import stirling.software.common.model.ApplicationProperties;
-import stirling.software.proprietary.security.model.JwtVerificationKey;
+import stirling.software.proprietary.security.model.JwtSigningKey;
 
 @Slf4j
 @Service
@@ -49,7 +49,7 @@ public class KeyPairCleanupService {
         LocalDateTime cutoffDate =
                 LocalDateTime.now().minusDays(jwtProperties.getKeyRetentionDays());
 
-        List<JwtVerificationKey> eligibleKeys =
+        List<JwtSigningKey> eligibleKeys =
                 keyPersistenceService.getKeysEligibleForCleanup(cutoffDate);
         if (eligibleKeys.isEmpty()) {
             return;
@@ -60,7 +60,7 @@ public class KeyPairCleanupService {
         keyPersistenceService.refreshActiveKeyPair();
     }
 
-    private void removeKeys(List<JwtVerificationKey> keys) {
+    private void removeKeys(List<JwtSigningKey> keys) {
         keys.forEach(
                 key -> {
                     try {

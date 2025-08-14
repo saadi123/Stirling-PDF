@@ -7,9 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProp
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.jdbc.DatabaseDriver;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import lombok.Getter;
@@ -58,18 +56,18 @@ public class DatabaseConfig {
      * @return a <code>DataSource</code> using the configuration settings in the settings.yml
      * @throws UnsupportedProviderException if the type of database selected is not supported
      */
-    @Bean
-    @Qualifier("dataSource")
-    @Primary
-    public DataSource dataSource() throws UnsupportedProviderException {
-        DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
-
-        if (!runningProOrHigher || !datasource.isEnableCustomDatabase()) {
-            return useDefaultDataSource(dataSourceBuilder);
-        }
-
-        return useCustomDataSource(dataSourceBuilder);
-    }
+    //    @Bean
+    //    @Qualifier("dataSource")
+    //    @Primary
+    //    public DataSource dataSource() throws UnsupportedProviderException {
+    //        DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
+    //
+    //        if (!runningProOrHigher || !datasource.isEnableCustomDatabase()) {
+    //            return useDefaultDataSource(dataSourceBuilder);
+    //        }
+    //
+    //        return useCustomDataSource(dataSourceBuilder);
+    //    }
 
     private DataSource useDefaultDataSource(DataSourceBuilder<?> dataSourceBuilder) {
         log.info("Using default H2 database");

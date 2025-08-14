@@ -8,19 +8,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import stirling.software.proprietary.security.model.JwtVerificationKey;
+import stirling.software.proprietary.security.model.JwtSigningKey;
 
 public interface KeyPersistenceServiceInterface {
 
-    JwtVerificationKey getActiveKey();
+    JwtSigningKey getActiveKey();
 
     Optional<KeyPair> getKeyPair(String keyId);
 
     boolean isKeystoreEnabled();
 
-    JwtVerificationKey refreshActiveKeyPair();
+    JwtSigningKey refreshActiveKeyPair();
 
-    List<JwtVerificationKey> getKeysEligibleForCleanup(LocalDateTime cutoffDate);
+    List<JwtSigningKey> getKeysEligibleForCleanup(LocalDateTime cutoffDate);
 
     void removeKey(String keyId);
 

@@ -18,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
@@ -132,20 +133,24 @@ public class SecurityConfiguration {
         if (loginEnabledValue) {
             boolean v2Enabled = appConfig.v2Enabled();
 
-            if (v2Enabled) {
-                http.addFilterBefore(
-                                jwtAuthenticationFilter(),
-                                UsernamePasswordAuthenticationFilter.class)
-                        .exceptionHandling(
-                                exceptionHandling ->
-                                        exceptionHandling.authenticationEntryPoint(
-                                                jwtAuthenticationEntryPoint));
-            }
             http.addFilterBefore(
                             userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .addFilterAfter(rateLimitingFilter(), UserAuthenticationFilter.class)
                     .addFilterAfter(firstLoginFilter, UsernamePasswordAuthenticationFilter.class);
 
+            //            if (v2Enabled) {
+            http.oauth2ResourceServer(
+                    oauth2 ->
+                            oauth2.jwt(
+                                    jwtConfigurer ->
+                                            jwtConfigurer.jwkSetUri(
+                                                    "https://nrlkjfznsavsbmweiyqu.supabase.co/auth/v1/.well-known/jwks.json")));
+            http.addFilterBefore(jwtAuthenticationFilter(), BearerTokenAuthenticationFilter.class)
+                    .exceptionHandling(
+                            exceptionHandling ->
+                                    exceptionHandling.authenticationEntryPoint(
+                                            jwtAuthenticationEntryPoint));
+            //            }
             if (!securityProperties.getCsrfDisabled()) {
                 CookieCsrfTokenRepository cookieRepo =
                         CookieCsrfTokenRepository.withHttpOnlyFalse();

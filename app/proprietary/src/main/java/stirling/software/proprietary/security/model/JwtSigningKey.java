@@ -4,6 +4,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,19 +18,27 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class JwtVerificationKey implements Serializable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class JwtSigningKey implements Serializable {
 
     @Serial private static final long serialVersionUID = 1L;
 
-    @ToString.Include private String keyId;
+    @JsonAlias("kid")
+    @ToString.Include
+    private String keyId;
 
-    private String verifyingKey;
+    @JsonAlias("n")
+    private String key;
+
+    @JsonAlias("alg")
+    private String algorithm;
 
     @ToString.Include private LocalDateTime createdAt;
 
-    public JwtVerificationKey(String keyId, String verifyingKey) {
+    public JwtSigningKey(String keyId, String key) {
         this.keyId = keyId;
-        this.verifyingKey = verifyingKey;
+        this.key = key;
+        this.algorithm = "RS256";
         this.createdAt = LocalDateTime.now();
     }
 }

@@ -35,7 +35,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
-import stirling.software.proprietary.security.model.JwtVerificationKey;
+import stirling.software.proprietary.security.model.JwtSigningKey;
 import stirling.software.proprietary.security.model.exception.AuthenticationFailureException;
 import stirling.software.proprietary.security.saml2.CustomSaml2AuthenticatedPrincipal;
 
@@ -80,7 +80,7 @@ public class JwtService implements JwtServiceInterface {
     @Override
     public String generateToken(String username, Map<String, Object> claims) {
         try {
-            JwtVerificationKey activeKey = keyPersistenceService.getActiveKey();
+            JwtSigningKey activeKey = keyPersistenceService.getActiveKey();
             Optional<KeyPair> keyPairOpt = keyPersistenceService.getKeyPair(activeKey.getKeyId());
 
             if (keyPairOpt.isEmpty()) {
@@ -159,7 +159,7 @@ public class JwtService implements JwtServiceInterface {
                             keyId);
 
                     if (keyId.equals(keyPersistenceService.getActiveKey().getKeyId())) {
-                        JwtVerificationKey verificationKey =
+                        JwtSigningKey verificationKey =
                                 keyPersistenceService.refreshActiveKeyPair();
                         Optional<KeyPair> refreshedKeyPair =
                                 keyPersistenceService.getKeyPair(verificationKey.getKeyId());
@@ -171,7 +171,7 @@ public class JwtService implements JwtServiceInterface {
                         }
                     } else {
                         // Try to use active key as fallback
-                        JwtVerificationKey activeKey = keyPersistenceService.getActiveKey();
+                        JwtSigningKey activeKey = keyPersistenceService.getActiveKey();
                         Optional<KeyPair> activeKeyPair =
                                 keyPersistenceService.getKeyPair(activeKey.getKeyId());
                         if (activeKeyPair.isPresent()) {
@@ -214,9 +214,8 @@ public class JwtService implements JwtServiceInterface {
     private Claims tryAllKeys(String token) throws AuthenticationFailureException {
         // First try the active key
         try {
-            JwtVerificationKey activeKey = keyPersistenceService.getActiveKey();
-            PublicKey publicKey =
-                    keyPersistenceService.decodePublicKey(activeKey.getVerifyingKey());
+            JwtSigningKey activeKey = keyPersistenceService.getActiveKey();
+            PublicKey publicKey = keyPersistenceService.decodePublicKey(activeKey.getKey());
             return Jwts.parser()
                     .verifyWith(publicKey)
                     .build()
@@ -228,15 +227,14 @@ public class JwtService implements JwtServiceInterface {
             log.debug("Active key failed, trying all available keys from cache");
 
             // If active key fails, try all available keys from cache
-            List<JwtVerificationKey> allKeys =
+            List<JwtSigningKey> allKeys =
                     keyPersistenceService.getKeysEligibleForCleanup(
                             LocalDateTime.now().plusDays(1));
 
-            for (JwtVerificationKey verificationKey : allKeys) {
+            for (JwtSigningKey verificationKey : allKeys) {
                 try {
                     PublicKey publicKey =
-                            keyPersistenceService.decodePublicKey(
-                                    verificationKey.getVerifyingKey());
+                            keyPersistenceService.decodePublicKey(verificationKey.getKey());
                     return Jwts.parser()
                             .verifyWith(publicKey)
                             .build()
@@ -310,7 +308,7 @@ public class JwtService implements JwtServiceInterface {
         try {
             PublicKey signingKey =
                     keyPersistenceService.decodePublicKey(
-                            keyPersistenceService.getActiveKey().getVerifyingKey());
+                            keyPersistenceService.getActiveKey().getKey());
 
             String keyId =
                     (String)

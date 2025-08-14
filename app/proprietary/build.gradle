@@ -40,8 +40,11 @@ dependencies {
     api 'org.springframework:spring-jdbc'
     api 'org.springframework:spring-webmvc'
     api 'org.springframework.session:spring-session-core'
-    api "org.springframework.security:spring-security-core:$springSecuritySamlVersion"
-    api "org.springframework.security:spring-security-saml2-service-provider:$springSecuritySamlVersion"
+    api "org.springframework.security:spring-security-core:$springSecurityVersion"
+    api "org.springframework.security:spring-security-saml2-service-provider:$springSecurityVersion"
+    api "org.springframework.security:spring-security-oauth2-resource-server:$springSecurityVersion"
+    api "org.springframework.security:spring-security-oauth2-jose:$springSecurityVersion"
+    api 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.6.8'
     api 'org.springframework.boot:spring-boot-starter-jetty'
     api 'org.springframework.boot:spring-boot-starter-security'
     api 'org.springframework.boot:spring-boot-starter-data-jpa'

@@ -1,8 +1,8 @@
 package stirling.software.proprietary.security;
 
 import java.io.IOException;
-import java.util.Map;
 
+import java.util.Map;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.SavedRequest;
@@ -53,12 +53,13 @@ public class CustomAuthenticationSuccessHandler
         }
         loginAttemptService.loginSucceeded(userName);
 
-        if (jwtService.isJwtEnabled()) {
-            String jwt =
-                    jwtService.generateToken(
-                            authentication, Map.of("authType", AuthenticationType.WEB));
-            jwtService.addToken(response, jwt);
-            log.debug("JWT generated for user: {}", userName);
+        if (true) {
+                        String jwt =
+                                jwtService.generateToken(
+                                        authentication, Map.of("authType",
+             AuthenticationType.WEB));
+                        jwtService.addToken(response, jwt);
+                        log.debug("JWT generated for user: {}", userName);
 
             getRedirectStrategy().sendRedirect(request, response, "/");
         } else {

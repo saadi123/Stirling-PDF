@@ -111,7 +111,9 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
             String contextPath = request.getContextPath();
 
             if ("GET".equalsIgnoreCase(method) && !requestURI.startsWith(contextPath + "/login")) {
-                response.sendRedirect(contextPath + "/login"); // redirect to the login page
+                //                response.sendRedirect(contextPath + "/login"); // redirect to the
+                // login page
+                filterChain.doFilter(request, response);
             } else {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.getWriter()

@@ -31,7 +31,7 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
 import stirling.software.common.configuration.InstallationPathConfig;
 import stirling.software.common.model.ApplicationProperties;
-import stirling.software.proprietary.security.model.JwtVerificationKey;
+import stirling.software.proprietary.security.model.JwtSigningKey;
 
 @ExtendWith(MockitoExtension.class)
 class KeyPersistenceServiceInterfaceTest {
@@ -87,11 +87,11 @@ class KeyPersistenceServiceInterfaceTest {
             keyPersistenceService = new KeyPersistenceService(applicationProperties, cacheManager);
             keyPersistenceService.initializeKeystore();
 
-            JwtVerificationKey result = keyPersistenceService.getActiveKey();
+            JwtSigningKey result = keyPersistenceService.getActiveKey();
 
             assertNotNull(result);
             assertNotNull(result.getKeyId());
-            assertNotNull(result.getVerifyingKey());
+            assertNotNull(result.getKey());
         }
     }
 
@@ -103,7 +103,7 @@ class KeyPersistenceServiceInterfaceTest {
         String privateKeyBase64 =
                 Base64.getEncoder().encodeToString(testKeyPair.getPrivate().getEncoded());
 
-        JwtVerificationKey existingKey = new JwtVerificationKey(keyId, publicKeyBase64);
+        JwtSigningKey existingKey = new JwtSigningKey(keyId, publicKeyBase64);
 
         Path keyFile = tempDir.resolve(keyId + ".key");
         Files.writeString(keyFile, privateKeyBase64);
@@ -116,7 +116,7 @@ class KeyPersistenceServiceInterfaceTest {
             keyPersistenceService = new KeyPersistenceService(applicationProperties, cacheManager);
             keyPersistenceService.initializeKeystore();
 
-            JwtVerificationKey result = keyPersistenceService.getActiveKey();
+            JwtSigningKey result = keyPersistenceService.getActiveKey();
 
             assertNotNull(result);
             assertNotNull(result.getKeyId());
@@ -131,7 +131,7 @@ class KeyPersistenceServiceInterfaceTest {
         String privateKeyBase64 =
                 Base64.getEncoder().encodeToString(testKeyPair.getPrivate().getEncoded());
 
-        JwtVerificationKey signingKey = new JwtVerificationKey(keyId, publicKeyBase64);
+        JwtSigningKey signingKey = new JwtSigningKey(keyId, publicKeyBase64);
 
         Path keyFile = tempDir.resolve(keyId + ".key");
         Files.writeString(keyFile, privateKeyBase64);
@@ -213,7 +213,7 @@ class KeyPersistenceServiceInterfaceTest {
         String publicKeyBase64 =
                 Base64.getEncoder().encodeToString(testKeyPair.getPublic().getEncoded());
 
-        JwtVerificationKey existingKey = new JwtVerificationKey(keyId, publicKeyBase64);
+        JwtSigningKey existingKey = new JwtSigningKey(keyId, publicKeyBase64);
 
         try (MockedStatic<InstallationPathConfig> mockedStatic =
                 mockStatic(InstallationPathConfig.class)) {
@@ -223,10 +223,10 @@ class KeyPersistenceServiceInterfaceTest {
             keyPersistenceService = new KeyPersistenceService(applicationProperties, cacheManager);
             keyPersistenceService.initializeKeystore();
 
-            JwtVerificationKey result = keyPersistenceService.getActiveKey();
+            JwtSigningKey result = keyPersistenceService.getActiveKey();
             assertNotNull(result);
             assertNotNull(result.getKeyId());
-            assertNotNull(result.getVerifyingKey());
+            assertNotNull(result.getKey());
         }
     }
 }

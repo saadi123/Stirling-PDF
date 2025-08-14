@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import stirling.software.common.configuration.InstallationPathConfig;
 import stirling.software.common.model.ApplicationProperties;
-import stirling.software.proprietary.security.model.JwtVerificationKey;
+import stirling.software.proprietary.security.model.JwtSigningKey;
 
 @Slf4j
 @Service
@@ -46,7 +46,7 @@ public class KeyPersistenceService implements KeyPersistenceServiceInterface {
     private final CacheManager cacheManager;
     private final Cache verifyingKeyCache;
 
-    private volatile JwtVerificationKey activeKey;
+    private volatile JwtSigningKey activeKey;
 
     @Autowired
     public KeyPersistenceService(
@@ -77,15 +77,15 @@ public class KeyPersistenceService implements KeyPersistenceServiceInterface {
     }
 
     @Transactional
-    private JwtVerificationKey generateAndStoreKeypair() {
-        JwtVerificationKey verifyingKey = null;
+    private JwtSigningKey generateAndStoreKeypair() {
+        JwtSigningKey verifyingKey = null;
 
         try {
             KeyPair keyPair = generateRSAKeypair();
             String keyId = generateKeyId();
 
             storePrivateKey(keyId, keyPair.getPrivate());
-            verifyingKey = new JwtVerificationKey(keyId, encodePublicKey(keyPair.getPublic()));
+            verifyingKey = new JwtSigningKey(keyId, encodePublicKey(keyPair.getPublic()));
             verifyingKeyCache.put(keyId, verifyingKey);
             activeKey = verifyingKey;
         } catch (IOException e) {
@@ -96,7 +96,7 @@ public class KeyPersistenceService implements KeyPersistenceServiceInterface {
     }
 
     @Override
-    public JwtVerificationKey getActiveKey() {
+    public JwtSigningKey getActiveKey() {
         if (activeKey == null) {
             return generateAndStoreKeypair();
         }
@@ -110,8 +110,7 @@ public class KeyPersistenceService implements KeyPersistenceServiceInterface {
         }
 
         try {
-            JwtVerificationKey verifyingKey =
-                    verifyingKeyCache.get(keyId, JwtVerificationKey.class);
+            JwtSigningKey verifyingKey = verifyingKeyCache.get(keyId, JwtSigningKey.class);
 
             if (verifyingKey == null) {
                 log.warn("No signing key found in database for keyId: {}", keyId);
@@ -119,7 +118,7 @@ public class KeyPersistenceService implements KeyPersistenceServiceInterface {
             }
 
             PrivateKey privateKey = loadPrivateKey(keyId);
-            PublicKey publicKey = decodePublicKey(verifyingKey.getVerifyingKey());
+            PublicKey publicKey = decodePublicKey(verifyingKey.getKey());
 
             return Optional.of(new KeyPair(publicKey, privateKey));
         } catch (Exception e) {
@@ -134,7 +133,7 @@ public class KeyPersistenceService implements KeyPersistenceServiceInterface {
     }
 
     @Override
-    public JwtVerificationKey refreshActiveKeyPair() {
+    public JwtSigningKey refreshActiveKeyPair() {
         return generateAndStoreKeypair();
     }
 
@@ -148,7 +147,7 @@ public class KeyPersistenceService implements KeyPersistenceServiceInterface {
     }
 
     @Override
-    public List<JwtVerificationKey> getKeysEligibleForCleanup(LocalDateTime cutoffDate) {
+    public List<JwtSigningKey> getKeysEligibleForCleanup(LocalDateTime cutoffDate) {
         CaffeineCache caffeineCache = (CaffeineCache) verifyingKeyCache;
         com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache =
                 caffeineCache.getNativeCache();
@@ -159,8 +158,8 @@ public class KeyPersistenceService implements KeyPersistenceServiceInterface {
                 nativeCache.asMap().size());
 
         return nativeCache.asMap().values().stream()
-                .filter(value -> value instanceof JwtVerificationKey)
-                .map(value -> (JwtVerificationKey) value)
+                .filter(value -> value instanceof JwtSigningKey)
+                .map(value -> (JwtSigningKey) value)
                 .filter(
                         key -> {
                             boolean eligible = key.getCreatedAt().isBefore(cutoffDate);

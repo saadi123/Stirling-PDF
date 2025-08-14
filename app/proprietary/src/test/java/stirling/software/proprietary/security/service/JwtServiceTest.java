@@ -37,7 +37,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import stirling.software.proprietary.security.model.JwtVerificationKey;
+import stirling.software.proprietary.security.model.JwtSigningKey;
 import stirling.software.proprietary.security.model.User;
 import stirling.software.proprietary.security.model.exception.AuthenticationFailureException;
 
@@ -56,7 +56,7 @@ class JwtServiceTest {
 
     private JwtService jwtService;
     private KeyPair testKeyPair;
-    private JwtVerificationKey testVerificationKey;
+    private JwtSigningKey testVerificationKey;
 
     @BeforeEach
     void setUp() throws NoSuchAlgorithmException {
@@ -68,7 +68,7 @@ class JwtServiceTest {
         // Create test verification key
         String encodedPublicKey =
                 Base64.getEncoder().encodeToString(testKeyPair.getPublic().getEncoded());
-        testVerificationKey = new JwtVerificationKey("test-key-id", encodedPublicKey);
+        testVerificationKey = new JwtSigningKey("test-key-id", encodedPublicKey);
 
         jwtService = new JwtService(true, keystoreService);
     }
@@ -79,7 +79,7 @@ class JwtServiceTest {
 
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
         when(keystoreService.getKeyPair("test-key-id")).thenReturn(Optional.of(testKeyPair));
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn(username);
@@ -100,7 +100,7 @@ class JwtServiceTest {
 
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
         when(keystoreService.getKeyPair("test-key-id")).thenReturn(Optional.of(testKeyPair));
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn(username);
@@ -120,7 +120,7 @@ class JwtServiceTest {
     void testValidateTokenSuccess() throws Exception {
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
         when(keystoreService.getKeyPair("test-key-id")).thenReturn(Optional.of(testKeyPair));
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn("testuser");
@@ -133,7 +133,7 @@ class JwtServiceTest {
     @Test
     void testValidateTokenWithInvalidToken() throws Exception {
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
 
         assertThrows(
@@ -146,7 +146,7 @@ class JwtServiceTest {
     @Test
     void testValidateTokenWithMalformedToken() throws Exception {
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
 
         AuthenticationFailureException exception =
@@ -162,7 +162,7 @@ class JwtServiceTest {
     @Test
     void testValidateTokenWithEmptyToken() throws Exception {
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
 
         AuthenticationFailureException exception =
@@ -185,7 +185,7 @@ class JwtServiceTest {
 
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
         when(keystoreService.getKeyPair("test-key-id")).thenReturn(Optional.of(testKeyPair));
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
         when(authentication.getPrincipal()).thenReturn(user);
         when(user.getUsername()).thenReturn(username);
@@ -198,7 +198,7 @@ class JwtServiceTest {
     @Test
     void testExtractUsernameWithInvalidToken() throws Exception {
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
 
         assertThrows(
@@ -213,7 +213,7 @@ class JwtServiceTest {
 
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
         when(keystoreService.getKeyPair("test-key-id")).thenReturn(Optional.of(testKeyPair));
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn(username);
@@ -230,7 +230,7 @@ class JwtServiceTest {
     @Test
     void testExtractClaimsWithInvalidToken() throws Exception {
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
 
         assertThrows(
@@ -321,7 +321,7 @@ class JwtServiceTest {
 
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
         when(keystoreService.getKeyPair("test-key-id")).thenReturn(Optional.of(testKeyPair));
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn(username);
@@ -347,7 +347,7 @@ class JwtServiceTest {
         // First, generate a token successfully
         when(keystoreService.getActiveKey()).thenReturn(testVerificationKey);
         when(keystoreService.getKeyPair("test-key-id")).thenReturn(Optional.of(testKeyPair));
-        when(keystoreService.decodePublicKey(testVerificationKey.getVerifyingKey()))
+        when(keystoreService.decodePublicKey(testVerificationKey.getKey()))
                 .thenReturn(testKeyPair.getPublic());
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn(username);
@@ -356,8 +356,8 @@ class JwtServiceTest {
 
         // Now mock the scenario for validation - key not found, but fallback works
         // Create a fallback key pair that can be used
-        JwtVerificationKey fallbackKey =
-                new JwtVerificationKey(
+        JwtSigningKey fallbackKey =
+                new JwtSigningKey(
                         "fallback-key",
                         Base64.getEncoder().encodeToString(testKeyPair.getPublic().getEncoded()));
 
