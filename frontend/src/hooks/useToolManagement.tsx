@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useFlatToolRegistry } from "../data/useTranslatedToolRegistry";
 import { getAllEndpoints, type ToolRegistryEntry } from "../data/toolsTaxonomy";
 import { useMultipleEndpointsEnabled } from "./useEndpointConfig";
+import { FileId } from '../types/fileContext';
 
 interface ToolManagementResult {
   selectedTool: ToolRegistryEntry | null;
   toolSelectedFileIds: string[];
   toolRegistry: Record<string, ToolRegistryEntry>;
-  setToolSelectedFileIds: (fileIds: string[]) => void;
+  setToolSelectedFileIds: (fileIds: FileId[]) => void;
   getSelectedTool: (toolKey: string | null) => ToolRegistryEntry | null;
 }
 

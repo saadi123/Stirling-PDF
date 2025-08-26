@@ -8,6 +8,7 @@ import { useToolResources } from './useToolResources';
 import { extractErrorMessage } from '../../../utils/toolErrorHandler';
 import { createOperation } from '../../../utils/toolOperationTracker';
 import { ResponseHandler } from '../../../utils/toolResponseProcessor';
+import { FileId } from '../../../types/fileContext';
 
 // Re-export for backwards compatibility
 export type { ProcessingProgress, ResponseHandler };
@@ -208,7 +209,7 @@ export const useToolOperation = <TParams = void>(
         actions.setDownloadInfo(downloadInfo.url, downloadInfo.filename);
 
         // Replace input files with processed files (consumeFiles handles pinning)
-        const inputFileIds = validFiles.map(file => findFileId(file)).filter(Boolean) as string[];
+        const inputFileIds = validFiles.map(file => findFileId(file)).filter(Boolean) as FileId[];
         await consumeFiles(inputFileIds, processedFiles);
 
         markOperationApplied(fileId, operationId);
