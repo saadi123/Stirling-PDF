@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+  stirling-pdf:
+    image: frooodle/s-pdf:latest
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./customFiles:/customFiles/
+    environment:
+      - UI_APP_NAME=Provura PDF Tools
+      - UI_APP_NAVBAR_NAME=Provura
+      - UI_HOME_DESCRIPTION=Your one-stop-shop for all your PDF needs, powered by Provura.
+    restart: always
